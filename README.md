@@ -25,6 +25,16 @@ The tool then produces:
 - Recommended actions
 - NIST AI RMF framework mapping
 
+## How to use
+
+1. Open the live demo
+2. Enter basic information about an AI model used in underwriting
+3. Toggle governance controls (human review, explainability, audit trail, etc.)
+4. Run the assessment
+5. Review the risk rating, identified gaps, and recommended actions
+
+This simulates a lightweight governance review workflow before a model is approved for use.
+
 ## Why I built this
 
 Insurance companies are increasingly using AI and predictive models in underwriting workflows, but these systems need to be explainable, reviewable, and auditable.
@@ -62,3 +72,11 @@ https://ai-governance-reviewer.vercel.app
 ## Status
 
 MVP complete. Future improvements could include exporting the governance artifact, adding model card fields, and expanding the assessment logic for additional insurance use cases.
+
+## Limitations
+
+This tool is a simplified, rule-based simulation of an AI governance review process.
+
+It does not replace formal compliance review, legal analysis, or model validation processes. In practice, governance assessments would include deeper documentation, model testing, and regulatory review workflows.
+
+The goal of this project is to demonstrate how governance frameworks (NIST AI RMF, NAIC guidance) can be translated into a usable workflow for early-stage review.
