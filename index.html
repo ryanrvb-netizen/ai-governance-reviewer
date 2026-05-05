@@ -1,0 +1,844 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Model Governance Reviewer</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #0d1117;
+    --paper: #f5f4f0;
+    --rule: #d8d5cc;
+    --accent: #c0392b;
+    --accent-muted: #e8d5d3;
+    --low: #1a7a4a;
+    --low-bg: #e8f5ee;
+    --mod: #b85c00;
+    --mod-bg: #fdf0e0;
+    --high: #c0392b;
+    --high-bg: #fde8e8;
+    --mono: 'IBM Plex Mono', monospace;
+    --sans: 'IBM Plex Sans', sans-serif;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: var(--sans);
+    background: var(--paper);
+    color: var(--ink);
+    min-height: 100vh;
+    font-size: 15px;
+    line-height: 1.6;
+  }
+
+  /* ── HEADER ── */
+  header {
+    border-bottom: 2px solid var(--ink);
+    padding: 28px 40px 24px;
+    display: flex;
+    align-items: flex-end;
+    gap: 20px;
+    background: var(--ink);
+    color: var(--paper);
+  }
+
+  .logo-mark {
+    font-family: var(--mono);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--accent);
+    border: 1.5px solid var(--accent);
+    padding: 4px 8px;
+    flex-shrink: 0;
+    margin-bottom: 4px;
+  }
+
+  .header-text h1 {
+    font-family: var(--mono);
+    font-size: 22px;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    line-height: 1.2;
+  }
+
+  .header-text p {
+    font-size: 13px;
+    font-weight: 300;
+    color: #a0a8b8;
+    margin-top: 4px;
+    letter-spacing: 0.02em;
+  }
+
+  /* ── MAIN LAYOUT ── */
+  main {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 40px 24px 80px;
+  }
+
+  /* ── SECTION LABELS ── */
+  .section-label {
+    font-family: var(--mono);
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .section-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--rule);
+  }
+
+  /* ── FORM CARD ── */
+  .form-card {
+    border: 1.5px solid var(--ink);
+    background: #fff;
+    margin-bottom: 32px;
+  }
+
+  .card-header {
+    background: var(--ink);
+    color: var(--paper);
+    padding: 12px 20px;
+    font-family: var(--mono);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  .card-body { padding: 24px 20px; }
+
+  /* ── FORM ELEMENTS ── */
+  .field { margin-bottom: 22px; }
+  .field:last-child { margin-bottom: 0; }
+
+  label.field-label {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    margin-bottom: 8px;
+    color: var(--ink);
+  }
+
+  select {
+    width: 100%;
+    padding: 10px 14px;
+    border: 1.5px solid var(--ink);
+    border-radius: 0;
+    background: var(--paper);
+    font-family: var(--sans);
+    font-size: 14px;
+    color: var(--ink);
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%230d1117' stroke-width='1.5' fill='none'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 14px center;
+    cursor: pointer;
+  }
+
+  select:focus { outline: 2px solid var(--accent); outline-offset: 0; }
+
+  .checkbox-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+
+  .check-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 12px;
+    border: 1.5px solid var(--rule);
+    cursor: pointer;
+    transition: border-color 0.15s, background 0.15s;
+    user-select: none;
+  }
+
+  .check-item:hover { border-color: var(--ink); background: var(--paper); }
+
+  .check-item input[type="checkbox"] { display: none; }
+
+  .check-box {
+    width: 16px;
+    height: 16px;
+    border: 1.5px solid var(--ink);
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.15s;
+  }
+
+  .check-item input:checked ~ .check-box {
+    background: var(--ink);
+  }
+
+  .check-item input:checked ~ .check-box::after {
+    content: '';
+    width: 8px;
+    height: 5px;
+    border-left: 2px solid var(--paper);
+    border-bottom: 2px solid var(--paper);
+    transform: rotate(-45deg) translateY(-1px);
+    display: block;
+  }
+
+  .check-item span.label-text {
+    font-size: 13px;
+    font-weight: 400;
+  }
+
+  /* ── TOGGLE CONTROLS ── */
+  .toggle-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+
+  .toggle-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 14px;
+    border: 1.5px solid var(--rule);
+    cursor: pointer;
+    transition: border-color 0.15s;
+    user-select: none;
+  }
+
+  .toggle-item:hover { border-color: var(--ink); }
+
+  .toggle-item input[type="checkbox"] { display: none; }
+
+  .toggle-name {
+    font-size: 12px;
+    font-weight: 500;
+    padding-right: 8px;
+  }
+
+  .toggle-switch {
+    width: 36px;
+    height: 20px;
+    border: 1.5px solid var(--ink);
+    border-radius: 0;
+    position: relative;
+    flex-shrink: 0;
+    background: var(--paper);
+    transition: background 0.15s;
+  }
+
+  .toggle-switch::after {
+    content: '';
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 12px;
+    height: 12px;
+    background: var(--ink);
+    transition: transform 0.15s;
+  }
+
+  .toggle-item input:checked ~ .toggle-switch {
+    background: var(--ink);
+  }
+
+  .toggle-item input:checked ~ .toggle-switch::after {
+    background: var(--paper);
+    transform: translateX(16px);
+  }
+
+  /* ── BUTTON ── */
+  .assess-btn {
+    width: 100%;
+    padding: 16px;
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    font-family: var(--mono);
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: background 0.15s, transform 0.1s;
+    margin-top: 24px;
+  }
+
+  .assess-btn:hover { background: #a93226; }
+  .assess-btn:active { transform: scale(0.99); }
+
+  /* ── OUTPUT ── */
+  #output { display: none; }
+  #output.visible { display: block; }
+
+  .output-header {
+    font-family: var(--mono);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--paper);
+    background: var(--ink);
+    padding: 12px 20px;
+  }
+
+  /* Risk Badge */
+  .risk-banner {
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    border-bottom: 1.5px solid var(--rule);
+  }
+
+  .risk-badge {
+    font-family: var(--mono);
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 8px 18px;
+    border: 2px solid;
+  }
+
+  .risk-badge.low { color: var(--low); border-color: var(--low); background: var(--low-bg); }
+  .risk-badge.moderate { color: var(--mod); border-color: var(--mod); background: var(--mod-bg); }
+  .risk-badge.high { color: var(--high); border-color: var(--high); background: var(--high-bg); }
+
+  .risk-label {
+    font-size: 13px;
+    color: #555;
+    font-weight: 300;
+  }
+
+  /* Output Sections */
+  .out-section {
+    padding: 20px;
+    border-bottom: 1.5px solid var(--rule);
+  }
+
+  .out-section:last-child { border-bottom: none; }
+
+  .out-section-title {
+    font-family: var(--mono);
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 12px;
+  }
+
+  .gap-list { list-style: none; }
+
+  .gap-list li {
+    padding: 6px 0 6px 20px;
+    position: relative;
+    font-size: 13px;
+    border-bottom: 1px solid var(--rule);
+  }
+
+  .gap-list li:last-child { border-bottom: none; }
+
+  .gap-list li::before {
+    content: '→';
+    position: absolute;
+    left: 0;
+    color: var(--accent);
+    font-family: var(--mono);
+  }
+
+  .summary-block {
+    font-size: 14px;
+    line-height: 1.7;
+    padding: 16px;
+    background: #fafaf8;
+    border-left: 3px solid var(--ink);
+    font-style: italic;
+    color: #333;
+  }
+
+  .action-list { list-style: none; }
+
+  .action-list li {
+    padding: 6px 0 6px 20px;
+    position: relative;
+    font-size: 13px;
+    border-bottom: 1px solid var(--rule);
+  }
+
+  .action-list li:last-child { border-bottom: none; }
+
+  .action-list li::before {
+    content: '✓';
+    position: absolute;
+    left: 0;
+    color: var(--low);
+    font-weight: 600;
+  }
+
+  /* Framework table */
+  .framework-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+
+  .framework-table th {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    font-weight: 600;
+    background: var(--paper);
+    padding: 8px 12px;
+    text-align: left;
+    border-bottom: 2px solid var(--ink);
+  }
+
+  .framework-table td {
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--rule);
+    vertical-align: top;
+  }
+
+  .framework-table tr:last-child td { border-bottom: none; }
+
+  .func-tag {
+    font-family: var(--mono);
+    font-size: 10px;
+    font-weight: 600;
+    padding: 3px 8px;
+    letter-spacing: 0.08em;
+    display: inline-block;
+  }
+
+  .func-tag.govern { background: #e8f0fe; color: #1a56b0; }
+  .func-tag.map    { background: #fdf0e0; color: #b85c00; }
+  .func-tag.measure{ background: #e8f5ee; color: #1a7a4a; }
+  .func-tag.manage { background: #fde8e8; color: #c0392b; }
+
+  .status-dot {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    margin-right: 6px;
+  }
+
+  .status-dot.red { background: var(--high); }
+  .status-dot.yellow { background: #e6a817; }
+  .status-dot.green { background: var(--low); }
+
+  /* Reset button */
+  .reset-btn {
+    margin: 20px;
+    padding: 10px 20px;
+    background: none;
+    border: 1.5px solid var(--ink);
+    font-family: var(--mono);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+
+  .reset-btn:hover { background: var(--paper); }
+
+  /* ── FOOTER ── */
+  footer {
+    text-align: center;
+    padding: 24px;
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.08em;
+    color: #999;
+    border-top: 1px solid var(--rule);
+    margin-top: 40px;
+  }
+
+  @media (max-width: 600px) {
+    header { padding: 20px 16px; }
+    main { padding: 24px 12px 60px; }
+    .checkbox-grid, .toggle-grid { grid-template-columns: 1fr; }
+    .header-text h1 { font-size: 18px; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo-mark">AI RMF</div>
+  <div class="header-text">
+    <h1>AI Model Governance Reviewer</h1>
+    <p>Assess underwriting AI risk in seconds — NAIC · NIST AI RMF · CO SB 21-169</p>
+  </div>
+</header>
+
+<main>
+
+  <!-- INPUT FORM -->
+  <div id="form-section">
+
+    <!-- Model Purpose -->
+    <div class="form-card">
+      <div class="card-header">01 — Model Purpose</div>
+      <div class="card-body">
+        <div class="field">
+          <label class="field-label" for="purpose">What does this model do?</label>
+          <select id="purpose">
+            <option value="">— Select model purpose —</option>
+            <option value="risk_scoring">Risk Scoring</option>
+            <option value="eligibility">Eligibility Decision</option>
+            <option value="pricing">Pricing Support</option>
+            <option value="fraud">Fraud Detection</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- Data Used -->
+    <div class="form-card">
+      <div class="card-header">02 — Data Used</div>
+      <div class="card-body">
+        <div class="field">
+          <label class="field-label">What data inputs does this model use?</label>
+          <div class="checkbox-grid">
+            <label class="check-item">
+              <input type="checkbox" id="claims" value="claims">
+              <div class="check-box"></div>
+              <span class="label-text">Claims history</span>
+            </label>
+            <label class="check-item">
+              <input type="checkbox" id="credit" value="credit">
+              <div class="check-box"></div>
+              <span class="label-text">Credit-based data</span>
+            </label>
+            <label class="check-item">
+              <input type="checkbox" id="zip" value="zip">
+              <div class="check-box"></div>
+              <span class="label-text">ZIP / location data</span>
+            </label>
+            <label class="check-item">
+              <input type="checkbox" id="third_party" value="third_party">
+              <div class="check-box"></div>
+              <span class="label-text">Third-party data</span>
+            </label>
+            <label class="check-item">
+              <input type="checkbox" id="unstructured" value="unstructured">
+              <div class="check-box"></div>
+              <span class="label-text">Unstructured notes</span>
+            </label>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Governance Controls -->
+    <div class="form-card">
+      <div class="card-header">03 — Governance Controls</div>
+      <div class="card-body">
+        <div class="field">
+          <label class="field-label">Which governance controls are in place?</label>
+          <div class="toggle-grid">
+            <label class="toggle-item">
+              <input type="checkbox" id="human_review">
+              <span class="toggle-name">Human review required?</span>
+              <div class="toggle-switch"></div>
+            </label>
+            <label class="toggle-item">
+              <input type="checkbox" id="explainability">
+              <span class="toggle-name">Explainability available?</span>
+              <div class="toggle-switch"></div>
+            </label>
+            <label class="toggle-item">
+              <input type="checkbox" id="audit_trail">
+              <span class="toggle-name">Audit trail maintained?</span>
+              <div class="toggle-switch"></div>
+            </label>
+            <label class="toggle-item">
+              <input type="checkbox" id="adverse_action">
+              <span class="toggle-name">Adverse action reasons defined?</span>
+              <div class="toggle-switch"></div>
+            </label>
+            <label class="toggle-item">
+              <input type="checkbox" id="bias_testing">
+              <span class="toggle-name">Bias testing completed?</span>
+              <div class="toggle-switch"></div>
+            </label>
+            <label class="toggle-item">
+              <input type="checkbox" id="model_owner">
+              <span class="toggle-name">Model owner assigned?</span>
+              <div class="toggle-switch"></div>
+            </label>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <button class="assess-btn" onclick="runAssessment()">→ Assess Model Risk</button>
+  </div>
+
+  <!-- OUTPUT -->
+  <div id="output">
+
+    <!-- Risk Rating -->
+    <div class="form-card">
+      <div class="output-header">Assessment Result</div>
+      <div class="risk-banner">
+        <div id="risk-badge" class="risk-badge"></div>
+        <div id="risk-label" class="risk-label"></div>
+      </div>
+
+      <!-- Gaps -->
+      <div class="out-section">
+        <div class="out-section-title">Key Gaps Identified</div>
+        <ul id="gaps-list" class="gap-list"></ul>
+      </div>
+
+      <!-- Summary -->
+      <div class="out-section">
+        <div class="out-section-title">Governance Summary</div>
+        <div id="summary-block" class="summary-block"></div>
+      </div>
+
+      <!-- Actions -->
+      <div class="out-section">
+        <div class="out-section-title">Recommended Actions</div>
+        <ul id="actions-list" class="action-list"></ul>
+      </div>
+
+      <!-- Framework Mapping -->
+      <div class="out-section">
+        <div class="out-section-title">NIST AI RMF — Framework Mapping</div>
+        <table class="framework-table">
+          <thead>
+            <tr>
+              <th>Function</th>
+              <th>Status</th>
+              <th>Finding</th>
+            </tr>
+          </thead>
+          <tbody id="framework-body"></tbody>
+        </table>
+      </div>
+
+    </div>
+
+    <button class="reset-btn" onclick="resetForm()">← Start Over</button>
+  </div>
+
+</main>
+
+<footer>AI Model Governance Reviewer · Built for insurance compliance review · Not legal advice</footer>
+
+<script>
+  function getChecked(id) {
+    return document.getElementById(id).checked;
+  }
+
+  function getVal(id) {
+    return document.getElementById(id).value;
+  }
+
+  function runAssessment() {
+    // Gather inputs
+    const purpose = getVal('purpose');
+    if (!purpose) {
+      alert('Please select the model purpose before assessing.');
+      return;
+    }
+
+    const data = {
+      claims:       document.getElementById('claims').checked,
+      credit:       document.getElementById('credit').checked,
+      zip:          document.getElementById('zip').checked,
+      third_party:  document.getElementById('third_party').checked,
+      unstructured: document.getElementById('unstructured').checked,
+    };
+
+    const controls = {
+      human_review:   getChecked('human_review'),
+      explainability: getChecked('explainability'),
+      audit_trail:    getChecked('audit_trail'),
+      adverse_action: getChecked('adverse_action'),
+      bias_testing:   getChecked('bias_testing'),
+      model_owner:    getChecked('model_owner'),
+    };
+
+    const sensitiveData = data.credit || data.zip || data.unstructured;
+    const highRiskTriggers = [
+      !controls.human_review,
+      !controls.explainability,
+      !controls.audit_trail,
+      sensitiveData && !controls.bias_testing,
+    ];
+
+    const criticalMissing = highRiskTriggers.filter(Boolean).length;
+    const totalMissing = Object.values(controls).filter(v => !v).length;
+
+    let riskLevel;
+    if (criticalMissing >= 2) {
+      riskLevel = 'high';
+    } else if (criticalMissing === 1 || totalMissing >= 3) {
+      riskLevel = 'moderate';
+    } else {
+      riskLevel = 'low';
+    }
+
+    // ── Build gaps ──
+    const gaps = [];
+    if (!controls.human_review)   gaps.push('No human review mechanism — automated decisions lack required oversight layer');
+    if (!controls.explainability) gaps.push('No explainability capability — model decisions cannot be interpreted or defended');
+    if (!controls.audit_trail)    gaps.push('No audit trail — regulatory review would find no documentation of decision logic');
+    if (!controls.adverse_action) gaps.push('Adverse action reasons not defined — violates consumer protection requirements');
+    if (!controls.bias_testing)   gaps.push('Bias testing not completed — discriminatory outcomes cannot be ruled out');
+    if (!controls.model_owner)    gaps.push('No model owner assigned — accountability gap under NIST GOVERN function');
+    if (data.credit && !controls.bias_testing) gaps.push('Credit-based data without bias testing creates disparate impact exposure');
+    if (data.zip && !controls.bias_testing)    gaps.push('ZIP/location data without bias review raises redlining risk');
+
+    if (gaps.length === 0) gaps.push('No critical gaps identified — governance posture appears adequate for current controls');
+
+    // ── Build actions ──
+    const actions = [];
+    if (!controls.human_review)   actions.push('Implement a human-in-the-loop review step for borderline or high-impact decisions');
+    if (!controls.explainability) actions.push('Document how model outputs are generated; implement SHAP values or decision logs');
+    if (!controls.audit_trail)    actions.push('Build an immutable audit trail capturing model version, inputs, outputs, and timestamps');
+    if (!controls.adverse_action) actions.push('Define and document adverse action reason codes mapped to model output categories');
+    if (!controls.bias_testing)   actions.push('Conduct disparate impact analysis across protected class proxies before deployment');
+    if (!controls.model_owner)    actions.push('Assign a named model owner responsible for ongoing monitoring and governance');
+
+    if (actions.length === 0) actions.push('Maintain current controls and schedule periodic governance reviews');
+
+    // ── Build summary ──
+    const purposeLabels = {
+      risk_scoring: 'risk scoring',
+      eligibility: 'eligibility determination',
+      pricing: 'pricing support',
+      fraud: 'fraud detection',
+    };
+
+    const riskLabels = { high: 'HIGH', moderate: 'MODERATE', low: 'LOW' };
+    const riskDescriptions = {
+      high: 'This model presents HIGH governance risk.',
+      moderate: 'This model presents MODERATE governance risk.',
+      low: 'This model presents LOW governance risk based on current controls.',
+    };
+
+    const nistRef = [];
+    if (!controls.model_owner)    nistRef.push('GOVERN (ownership gaps)');
+    if (!controls.explainability || !controls.bias_testing) nistRef.push('MAP (risk identification incomplete)');
+    if (!controls.bias_testing || !controls.audit_trail)    nistRef.push('MEASURE (testing and logging absent)');
+    if (!controls.human_review || !controls.adverse_action) nistRef.push('MANAGE (response and review undefined)');
+
+    const nistText = nistRef.length > 0
+      ? `Under the NIST AI Risk Management Framework, this assessment surfaces concerns across: ${nistRef.join('; ')}. `
+      : 'Current controls map reasonably well to NIST AI RMF expectations. ';
+
+    const regulatoryNote = (data.credit || data.zip)
+      ? 'Given the use of credit-based or location data, this model carries additional exposure under Colorado SB 21-169 and NAIC guidance on proxy discrimination. '
+      : '';
+
+    const defenseNote = !controls.audit_trail || !controls.explainability
+      ? 'Without an audit trail and explainability mechanism, the organization would be unable to defend individual underwriting decisions under regulatory review.'
+      : 'The presence of audit logging and explainability provides a foundation for defending individual decisions if challenged.';
+
+    const summaryText = `${riskDescriptions[riskLevel]} This model is used for ${purposeLabels[purpose] || purpose}. ${nistText}${regulatoryNote}${defenseNote}`;
+
+    // ── Framework mapping ──
+    const frameworkRows = [
+      {
+        func: 'GOVERN',
+        cls: 'govern',
+        status: controls.model_owner ? 'green' : 'red',
+        finding: controls.model_owner
+          ? 'Model owner assigned; accountability structure in place'
+          : 'No model owner — GOVERN requires defined roles and accountability',
+      },
+      {
+        func: 'MAP',
+        cls: 'map',
+        status: (controls.explainability && controls.bias_testing) ? 'green' : (!controls.explainability && !controls.bias_testing) ? 'red' : 'yellow',
+        finding: controls.explainability
+          ? 'Model purpose documented; explainability available for risk mapping'
+          : 'Risk context incomplete — MAP function requires model risk to be fully characterized',
+      },
+      {
+        func: 'MEASURE',
+        cls: 'measure',
+        status: (controls.bias_testing && controls.audit_trail) ? 'green' : (!controls.bias_testing && !controls.audit_trail) ? 'red' : 'yellow',
+        finding: controls.bias_testing
+          ? 'Bias testing completed; measurement baseline established'
+          : 'No bias testing — MEASURE requires ongoing performance and fairness evaluation',
+      },
+      {
+        func: 'MANAGE',
+        cls: 'manage',
+        status: (controls.human_review && controls.adverse_action && controls.audit_trail) ? 'green' : (!controls.human_review && !controls.adverse_action) ? 'red' : 'yellow',
+        finding: (controls.human_review && controls.adverse_action)
+          ? 'Human review and adverse action reasons defined; MANAGE controls in place'
+          : 'MANAGE gaps present — response workflows and oversight mechanisms need definition',
+      },
+    ];
+
+    // ── Render ──
+    const riskBadge = document.getElementById('risk-badge');
+    riskBadge.className = `risk-badge ${riskLevel}`;
+    riskBadge.textContent = `${riskLabels[riskLevel]} RISK`;
+
+    const riskLabelEl = document.getElementById('risk-label');
+    riskLabelEl.textContent = {
+      high: `${criticalMissing} critical control(s) missing — regulatory defensibility is in question`,
+      moderate: `${totalMissing} control gap(s) identified — review recommended before deployment`,
+      low: 'Governance posture is acceptable — continue monitoring and periodic review',
+    }[riskLevel];
+
+    const gapsList = document.getElementById('gaps-list');
+    gapsList.innerHTML = gaps.map(g => `<li>${g}</li>`).join('');
+
+    document.getElementById('summary-block').textContent = summaryText;
+
+    const actionsList = document.getElementById('actions-list');
+    actionsList.innerHTML = actions.map(a => `<li>${a}</li>`).join('');
+
+    const frameworkBody = document.getElementById('framework-body');
+    frameworkBody.innerHTML = frameworkRows.map(r => `
+      <tr>
+        <td><span class="func-tag ${r.cls}">${r.func}</span></td>
+        <td><span class="status-dot ${r.status}"></span>${r.status === 'green' ? 'Adequate' : r.status === 'yellow' ? 'Partial' : 'Gap'}</td>
+        <td>${r.finding}</td>
+      </tr>
+    `).join('');
+
+    // Show output
+    document.getElementById('form-section').style.display = 'none';
+    const out = document.getElementById('output');
+    out.style.display = 'block';
+    out.classList.add('visible');
+    out.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  function resetForm() {
+    document.getElementById('purpose').value = '';
+    ['claims','credit','zip','third_party','unstructured',
+     'human_review','explainability','audit_trail','adverse_action','bias_testing','model_owner']
+      .forEach(id => document.getElementById(id).checked = false);
+    document.getElementById('form-section').style.display = 'block';
+    document.getElementById('output').style.display = 'none';
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+</script>
+</body>
+</html>
