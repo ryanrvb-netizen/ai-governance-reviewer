@@ -492,7 +492,34 @@
   <!-- INPUT FORM -->
   <div id="form-section">
 
-    <!-- Model Purpose -->
+    <!-- Model Information -->
+    <div class="form-card">
+      <div class="card-header">00 — Model Information</div>
+      <div class="card-body">
+        <div class="field">
+          <label class="field-label" for="model_name">Model Name</label>
+          <input type="text" id="model_name" placeholder="e.g. Underwriting Risk Score v2.1" style="width:100%;padding:10px 14px;border:1.5px solid var(--ink);border-radius:0;background:var(--paper);font-family:var(--sans);font-size:14px;color:var(--ink);">
+        </div>
+        <div class="field">
+          <label class="field-label" for="business_owner">Business Owner</label>
+          <input type="text" id="business_owner" placeholder="e.g. Underwriting Operations" style="width:100%;padding:10px 14px;border:1.5px solid var(--ink);border-radius:0;background:var(--paper);font-family:var(--sans);font-size:14px;color:var(--ink);">
+        </div>
+        <div class="field">
+          <label class="field-label" for="intended_use">Intended Use</label>
+          <input type="text" id="intended_use" placeholder="e.g. Automate initial risk tier assignment for personal lines" style="width:100%;padding:10px 14px;border:1.5px solid var(--ink);border-radius:0;background:var(--paper);font-family:var(--sans);font-size:14px;color:var(--ink);">
+        </div>
+        <div class="field">
+          <label class="field-label" for="impact_level">Decision Impact Level</label>
+          <select id="impact_level" style="width:100%;padding:10px 14px;border:1.5px solid var(--ink);border-radius:0;background:var(--paper);font-family:var(--sans);font-size:14px;color:var(--ink);appearance:none;">
+            <option value="">— Select impact level —</option>
+            <option value="low">Low — Informational only</option>
+            <option value="moderate">Moderate — Influences decision</option>
+            <option value="high">High — Drives decision outcome</option>
+            <option value="critical">Critical — Fully automated decision</option>
+          </select>
+        </div>
+      </div>
+    </div>    <!-- Model Purpose -->
     <div class="form-card">
       <div class="card-header">01 — Model Purpose</div>
       <div class="card-body">
