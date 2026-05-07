@@ -1080,12 +1080,42 @@
   }
 
   function resetForm() {
-    document.getElementById('purpose').value = '';
+    // Clear dropdowns and text inputs
+    ['purpose', 'impact_level'].forEach(id => document.getElementById(id).value = '');
+    ['model_name','business_owner','intended_use','reviewer_name','reviewer_notes']
+      .forEach(id => { const el = document.getElementById(id); if(el) el.value = ''; });
+
+    // Clear checkboxes and toggles
     ['claims','credit','zip','third_party','unstructured',
      'human_review','explainability','audit_trail','adverse_action','bias_testing','model_owner']
       .forEach(id => document.getElementById(id).checked = false);
-    document.getElementById('form-section').style.display = 'block';
+
+    // Hide assessment output
     document.getElementById('output').style.display = 'none';
+
+    // Hide and clear artifact
+    const artifact = document.getElementById('governance-artifact');
+    artifact.style.display = 'none';
+    document.getElementById('print-artifact-btn').style.display = 'none';
+
+    // Clear all artifact fields
+    ['artifact-id','artifact-timestamp','artifact-reviewer',
+     'artifact-model-name','artifact-business-owner','artifact-model-purpose',
+     'artifact-impact-level','artifact-intended-use','artifact-data-used',
+     'artifact-risk-reasoning','artifact-governance-summary',
+     'artifact-footer-id','artifact-reviewer-notes']
+      .forEach(id => { const el = document.getElementById(id); if(el) el.textContent = ''; });
+
+    ['artifact-high-risk-flags','artifact-gaps-list',
+     'artifact-actions-list','artifact-framework-body']
+      .forEach(id => { const el = document.getElementById(id); if(el) el.innerHTML = ''; });
+
+    // Clear risk badge
+    const badge = document.getElementById('artifact-risk-badge');
+    if(badge) { badge.textContent = ''; badge.className = 'artifact-risk-badge'; }
+
+    // Show form and scroll to top
+    document.getElementById('form-section').style.display = 'block';
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
