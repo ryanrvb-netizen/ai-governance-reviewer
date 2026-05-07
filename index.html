@@ -1046,8 +1046,8 @@
 
     const riskLabelEl = document.getElementById('risk-label');
     riskLabelEl.textContent = {
-      high: `${criticalMissing} critical control(s) missing — regulatory defensibility is in question`,
-      moderate: `${totalMissing} control gap(s) identified — review recommended before deployment`,
+      high: 'Multiple critical governance controls missing — regulatory defensibility is in question',
+      moderate: 'Governance gaps identified — remediation recommended before broader use',
       low: 'Governance posture is acceptable — continue monitoring and periodic review',
     }[riskLevel];
 
@@ -1164,9 +1164,9 @@
     badge.textContent = riskLevel.charAt(0).toUpperCase() + riskLevel.slice(1) + ' Risk';
 
     const riskReasonMap = {
-      high: 'Critical governance controls are missing. Regulatory defensibility is in question.',
-      moderate: 'Some governance controls are absent. Review and remediation recommended before deployment.',
-      low: 'Governance posture is acceptable. Continue monitoring and periodic review.'
+      high: 'Multiple critical governance controls missing — regulatory defensibility is in question.',
+      moderate: 'Governance gaps identified — remediation recommended before broader use.',
+      low: 'Governance posture is acceptable — continue monitoring and periodic review.'
     };
     document.getElementById('artifact-risk-reasoning').textContent = riskReasonMap[riskLevel];
     document.getElementById('artifact-governance-summary').textContent = summaryText;
