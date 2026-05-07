@@ -848,6 +848,10 @@
         <div id="risk-badge" class="risk-badge"></div>
         <div id="risk-label" class="risk-label"></div>
       </div>
+      <div style="padding:10px 20px;display:flex;gap:24px;border-bottom:1.5px solid var(--rule);flex-wrap:wrap;">
+        <div style="font-size:11px;color:#555;"><span style="font-weight:600;text-transform:uppercase;letter-spacing:0.08em;font-family:var(--mono);font-size:10px;color:#888;margin-right:8px;">Production Status</span><span id="production-readiness"></span></div>
+        <div style="font-size:11px;color:#555;"><span style="font-weight:600;text-transform:uppercase;letter-spacing:0.08em;font-family:var(--mono);font-size:10px;color:#888;margin-right:8px;">Review Cadence</span><span id="review-cadence"></span></div>
+      </div>
       <!-- Gaps -->
       <div class="out-section">
         <div class="out-section-title">Key Gaps Identified</div>
@@ -903,7 +907,7 @@
     // Gather inputs
     const purpose = getVal('purpose');
     if (!purpose) {
-      alert('Please select the model purpose before assessing.');
+      alert('Please complete all required assessment fields before continuing.');
       return;
     }
 
@@ -1008,7 +1012,7 @@
       : 'Current controls map reasonably well to NIST AI RMF expectations. ';
 
     const regulatoryNote = (data.credit || data.zip)
-      ? 'Given the use of credit-based or location data, this model carries additional exposure under Colorado SB 21-169 and NAIC guidance on proxy discrimination. '
+      ? 'Given the use of credit-based or location data, this model warrants ongoing fairness monitoring and periodic governance review. '
       : '';
 
     const defenseNote = !controls.audit_trail || !controls.explainability
@@ -1064,6 +1068,26 @@
       moderate: 'Governance gaps identified — remediation recommended before broader use',
       low: 'Governance posture is acceptable — continue monitoring and periodic review',
     }[riskLevel];
+
+    // Review cadence
+    const cadenceMap = {
+      high: 'Remediation required before production deployment',
+      moderate: 'Recommended review cadence: Quarterly governance review',
+      low: 'Recommended review cadence: Annual governance review',
+    };
+
+    // Production readiness
+    const readinessMap = {
+      high: 'Not recommended for production deployment in current state',
+      moderate: 'Remediation recommended before broader deployment',
+      low: 'Suitable for controlled production use',
+    };
+
+    // Inject cadence + readiness into output if elements exist
+    const cadenceEl = document.getElementById('review-cadence');
+    const readinessEl = document.getElementById('production-readiness');
+    if (cadenceEl) cadenceEl.textContent = cadenceMap[riskLevel];
+    if (readinessEl) readinessEl.textContent = readinessMap[riskLevel];
 
     const gapsList = document.getElementById('gaps-list');
     gapsList.innerHTML = gaps.map(g => `<li>${g}</li>`).join('');
