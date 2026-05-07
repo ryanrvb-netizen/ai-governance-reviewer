@@ -923,25 +923,40 @@
       bias_testing:   getChecked('bias_testing'),
       model_owner:    getChecked('model_owner'),
     };
-
-    const sensitiveData = data.credit || data.zip || data.unstructured;
-    const highRiskTriggers = [
-      !controls.human_review,
-      !controls.explainability,
-      !controls.audit_trail,
-      sensitiveData && !controls.bias_testing,
-    ];
-
-    const criticalMissing = highRiskTriggers.filter(Boolean).length;
+    const sensitiveData = data.credit || data.zip;
+    const impactLevel = document.getElementById('impact_level').value;
+    const highImpact = impactLevel === 'high' || impactLevel === 'critical';
     const totalMissing = Object.values(controls).filter(v => !v).length;
 
+    // HIGH risk — foundational failure or severe regulatory exposure
+    const highConditions = [
+      (!controls.human_review && highImpact),
+      (!controls.audit_trail && !controls.explainability),
+      (sensitiveData && !controls.bias_testing),
+      (highImpact && totalMissing >= 4),
+      (!controls.model_owner && !controls.human_review),
+    ];
+
+    // MODERATE risk — meaningful gaps, remediable
+    const moderateConditions = [
+      !controls.explainability,
+      !controls.bias_testing,
+      !controls.adverse_action,
+      !controls.model_owner,
+      (!controls.audit_trail && controls.explainability),
+      (totalMissing >= 2),
+    ];
+
+    const criticalMissing = highConditions.filter(Boolean).length;
+
     let riskLevel;
-    if (criticalMissing >= 2) {
+    if (criticalMissing >= 1) {
       riskLevel = 'high';
-    } else if (criticalMissing === 1 || totalMissing >= 3) {
+    } else if (moderateConditions.filter(Boolean).length >= 1) {
       riskLevel = 'moderate';
     } else {
       riskLevel = 'low';
+    }
     }
 
     // ── Build gaps ──
