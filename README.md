@@ -38,19 +38,19 @@ A compliance or governance user inputs information about an AI model and its con
 ## Screenshots
 
 ### Intake Workflow
-![Intake Form](screenshots/intake-form.png)
+![Intake Form](intake-form.png)
 
 ### LOW Risk Assessment
-![LOW Risk](screenshots/low-risk.png)
+![LOW Risk](low-risk.png)
 
 ### MODERATE Risk Assessment
-![MODERATE Risk](screenshots/moderate-risk.png)
+![MODERATE Risk](moderate-risk.png)
 
 ### HIGH Risk Assessment
-![HIGH Risk](screenshots/high-risk.png)
+![HIGH Risk](high-risk.png)
 
 ### Governance Artifact / PDF Export
-![Governance Artifact](screenshots/governance-artifact.png)
+![Governance Artifact](governance-artifact.png)
 
 ---
 
